@@ -2,11 +2,11 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 import sys
-sys.path.append('/mnt/rcl-server/workspace/diane/nature')
+sys.path.append('/mnt/rcl-server/workspace/diane/nature/model')
 sys.path.append('/mnt/rcl-server/workspace/diane/nature/baseline/tabpfn_mlp')
 
-from model.data_preprocessor import *
-from model.fix_seed import *
+from utils.data_preprocessor import *
+from utils.fix_seed import *
 from tabpfn_mlp import train_model
 
 if __name__ == "__main__":

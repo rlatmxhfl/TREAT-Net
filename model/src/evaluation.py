@@ -18,6 +18,29 @@ from sklearn.metrics import (
     roc_curve
 )
 
+def compute_worst_class_accuracy(y_true, y_pred):
+    """
+    Computes the worst per-class accuracy (i.e., minimum accuracy across all classes).
+
+    Args:
+        y_true (np.ndarray): Ground-truth labels (shape: [N])
+        y_pred (np.ndarray): Predicted labels (shape: [N])
+
+    Returns:
+        float: Worst-class accuracy in percentage (%)
+    """
+    unique_classes = np.unique(y_true)
+    worst_acc = 1
+
+    for cls in unique_classes:
+        cls_mask = y_true == cls
+        if cls_mask.sum() == 0:
+            continue  # skip if class is missing (should not happen in eval)
+        cls_acc = (y_pred[cls_mask] == y_true[cls_mask]).mean()
+        worst_acc = min(worst_acc, cls_acc)
+
+    return worst_acc
+
 def class_accuracy(y_true, y_pred):
     classes = np.unique(y_true)
     out = {}
