@@ -27,7 +27,6 @@ LABEL_MAPPING_DICT = {
 
 NUM_CLASSES = {'tp': len(np.unique(list(LABEL_MAPPING_DICT['tp'].values())))}
 
-
 def get_all_files_and_ground_truths(
         filename,
         split='train',
@@ -170,17 +169,10 @@ class PreprocessedACSDataset(ACSDataset):
             '/raid/home/minht/workspace',  # new storing location with faster loading speed
         )
         x = np.load(file)  # , mmap_mode='r')
-        # x = self.transform(np.repeat(x.transpose(2, 0, 1)[..., None], 3, axis=-1))
 
-        x = torch.tensor(x, dtype=torch.float32).unsqueeze(0).repeat(3, 1, 1, 1).permute(0, 3, 1, 2)
-        # x = (x - x.mean(dim=(1, 2, 3), keepdims=True)) / x.std(dim=(1, 2, 3), keepdims=True)
         if self.transform is not None:
             x = self.transform(x)
-        x.sub_(self.mean).div_(self.std)
 
-        # x = (x - x.mean()) / x.std()
-
-        assert x.shape == (3, self.frames_to_take, self.video_size, self.video_size), f"Invalid shape: {x.shape}"
         return x
 
     def __len__(self):
@@ -525,7 +517,10 @@ class ViewLabelV1(Dataset):
             label = sample['label']
 
         embeddings = sample['view_token'] if self.use_view_tokens else sample['views']
-        tab_embedding = sample['tab_embedding'].astype(np.float32)
+        if 'tab_embedding' in sample:
+            tab_embedding = sample['tab_embedding'].astype(np.float32)
+        else:
+            tab_embedding = np.zeros(192, dtype=np.float32)
         return embeddings, tab_embedding, label, index
 
     def __len__(self):
