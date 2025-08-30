@@ -40,7 +40,7 @@ export CUDA_VISIBLE_DEVICES=${device}
 for seed in "${seeds[@]}"; do
   echo "Running with seed ${seed}."
 
-  python cross_attn_main.py \
+  nohup python echoprime.py \
     --exp_name min_len \
     --num_workers 0 \
     --batch_size 32 \
@@ -55,7 +55,7 @@ for seed in "${seeds[@]}"; do
     --epochs 1000 \
     --loss_fn ce \
     --seed ${seed} \
-    --exp_dir /raid/home/minht/projects/recom_therapy/checkpoint/minht/$datetime \
-    --mode video+tab \
-    $@ > crossattn_seed${seed}.log 2>&1 &
+    --exp_dir /home/diane.kim/nature/baseline/echoprime/checkpoint/$datetime \
+    --mode video \
+    $@ > echprime_seed${seed}.log 2>&1 &
 done

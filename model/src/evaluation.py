@@ -72,11 +72,21 @@ def model_eval(y_true, y_pred, y_proba, positive_class=1, specificities=(0.2, 0.
     scores = None
 
     y_proba=np.asarray(y_proba)
-    if y_proba.ndim == 2:
-        scores = y_proba[:, 1]
+
+    if y_proba.ndim == 1: #already positive-class probability
+        scores = y_proba #shape (N,)
+    elif y_proba.ndim == 2:
+        if y_proba.shape[1] == 1:
+            scores = y_proba.ravel()  #shape (N,1) -> (N,)
+            # .ravel() takes a multi-dimensional array and flattens to 1D (e.g., (2,3) to (6,)) - could be better than .flatten() because it works directly on the original data whenever possible
+        elif y_proba.shape[1] == 2:
+            scores = y_proba[:, 1] #posititive class column
+        else:
+            print("### multiclass probs (N,C>2): you can set scores=None (AUC handled separately). scores is set to None ###")
+            scores=None
     else:
-        scores = y_proba.ravel()
-    
+        scores = y_proba.ravel() #flatten to 1D if possible
+
     y_pred = np.asarray(y_pred)
 
     metrics = {

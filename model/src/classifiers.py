@@ -44,82 +44,6 @@ class AttentionFusion(nn.Module):
         fused = torch.sum(weights * x, dim=1)  # [B, D]
         return fused, weights.squeeze(-1)
 
-
-class ACSClassifierEmbeddingAttention(nn.Module):
-    def __init__(self, device, encoder=None, num_classes=3, mode="study", freeze_encoder=True, disable_pe=False):
-        super().__init__()
-        self.freeze_encoder = freeze_encoder
-        self.device = device
-        self.mode = mode
-        if encoder is None:
-            self.encoder = get_echo_prime_encoder(device, disable_pe=disable_pe)
-        else:
-            self.encoder = encoder
-
-        if freeze_encoder:
-            for param in self.encoder.parameters():
-                param.requires_grad = False
-        if hasattr(self.encoder, "fc"):
-            self.encoder.fc = nn.Identity()
-        self.classifier_head = ClassificationHead(input_dim=512, num_classes=num_classes)
-
-        if self.mode == "study":
-            self.attn_fusion = AttentionFusion(input_dim=512)
-        elif self.mode == "cine":
-            self.attn_fusion = None
-        else:
-            raise ValueError(f"Unknown mode '{self.mode}' (expected 'study' or 'cine')")
-
-    def forward(self, video_tensor_batch):
-        """
-        If mode == 'study':
-            video_tensor_batch: [B, V, C, T, H, W]
-        If mode == 'cine':
-            video_tensor_batch: [B, C, T, H, W]
-        """
-        logits, attn_weights = None, None
-
-        if self.mode == "study":
-            B, V, C, T, H, W = video_tensor_batch.shape
-            assert T == 16 and H == 224 and W == 224, f"Expected (16, 224, 224), got ({T}, {H}, {W})"
-            video_tensor_batch = video_tensor_batch.view(B * V, C, T, H, W)
-            video_tensor_batch = video_tensor_batch.to(torch.float32).contiguous()
-            embeddings = self.encoder(video_tensor_batch)  # [B * V, 512]
-            D = embeddings.shape[-1]
-            embeddings = embeddings.view(B, V, D)  # [B, V, 512]
-
-            fused_embedding, attn_weights = self.attn_fusion(embeddings)  # [B, 512], [B, V]
-            logits = self.classifier_head(fused_embedding)  # [B, num_classes]
-
-        elif self.mode == "cine":
-            B, C, T, H, W = video_tensor_batch.shape
-            assert T == 16 and H == 224 and W == 224, f"Expected (16, 224, 224), got ({T}, {H}, {W})"
-            video_tensor_batch = video_tensor_batch.to(torch.float32).contiguous()
-            with torch.set_grad_enabled(not self.freeze_encoder):
-                if self.freeze_encoder:
-                    self.encoder.eval()
-                embeddings = self.encoder(video_tensor_batch)  # [B, 512]
-            logits = self.classifier_head(embeddings)  # [B, num_classes]
-
-        return logits, None
-
-
-class ACSClassifierEmbeddingEchoCLIP(ACSClassifierEmbeddingAttention):
-
-    def forward(self, video_tensor_batch):
-        assert self.mode == "cine"
-
-        batch_size = video_tensor_batch.shape[0]
-        video_tensor_batch = video_tensor_batch.transpose(1, 2)
-        video_tensor_batch = video_tensor_batch.reshape([-1] + list(video_tensor_batch.shape[2:]))
-        embeddings = self.encoder.encode_image(video_tensor_batch)
-        embeddings = embeddings.reshape(batch_size, -1, embeddings.shape[-1])
-        embeddings = F.normalize(embeddings, dim=-1)
-        embeddings = embeddings.mean(dim=1)
-        logits = self.classifier_head(embeddings.float())
-        return logits, None
-
-
 def get_sinusoid_encoding(n_position, d_model):
     position = torch.arange(n_position, dtype=torch.float32).unsqueeze(1)
     div_term = torch.exp(torch.arange(0, d_model, 2, dtype=torch.float32) *
@@ -131,7 +55,7 @@ def get_sinusoid_encoding(n_position, d_model):
 
 
 class StudyClassifier(nn.Module):
-    def __init__(self, num_classes=3, emb_dim=512, num_views=3, num_layers=2, nhead=8,
+    def __init__(self, num_classes=2, emb_dim=512, num_views=3, num_layers=2, nhead=8,
                  tab_emb_dim=192):
         super().__init__()
         self.cls_token = nn.Parameter(torch.zeros(1, 1, emb_dim))

@@ -17,12 +17,12 @@ import pandas as pd
 import matplotlib as plt
 from sklearn.metrics import balanced_accuracy_score, classification_report, accuracy_score, f1_score, roc_curve, auc, confusion_matrix
 from scipy.interpolate import interp1d
-import tqdm
+from tqdm import tqdm
 
 from src.misc import DummyRun, show_trainable
 from src.model_training import get_lr_scheduler
 from src.classifiers import StudyClassifierVideoOnly, StudyClassifierV1, StudyClassifierV1LateFusion
-from src.dataloader import EMB_DIR, LABEL_MAPPING_DICT, NUM_CLASSES
+from src.dataloader import EMB_DIR, LABEL_MAPPING_DICT, NUM_CLASSES, set_loaders
 from src.evaluation import *
 
 from utils.fix_seed import fix_seed
@@ -83,15 +83,16 @@ def train_one_epoch(model, dataloader, criterion, optimizer, device,
         videos = videos.to(device)
         tabs = tabs.to(device)
         views = views.to(device)
-        labels = labels.to(device)
 
         optimizer.zero_grad()
+
+        labels = labels[0].to(device)
 
         logits = model(videos, tabs, views, training=True)
         loss = criterion(logits.squeeze(), labels.squeeze().float()) #squeeze means removing extra dimensions (e.g., [32, 1] → [32])
 
-        preds = (logits > 0).long().squeeze()
-        probs = torch.sigmoid(logits.detach()).squeeze()
+        preds = (logits > 0).long()
+        probs = torch.sigmoid(logits.detach())
         metrics['probs'].append(probs.detach().cpu())
         metrics['preds'].append(preds.detach().cpu())
         metrics['targets'].append(labels.cpu())
@@ -229,17 +230,18 @@ def evaluate(model, dataloader, criterion, device, epoch, run=DummyRun(), set_na
 
     for batch in dataloader:
         videos, tabs, views, labels = batch[:4]
+
         videos = videos.to(device)
         tabs = tabs.to(device)
         views = views.to(device)
-        labels = labels.to(device)
+        labels = labels[0].to(device)
 
         logits = model(videos, tabs, views, training=False)
 
         loss = criterion(logits.squeeze(), labels.squeeze().float())
 
-        preds = (logits > 0).long().squeeze() 
-        probs = torch.sigmoid(logits).squeeze() #don't need .detach() here because it's inside torch.no_grad - but need to include for training loops
+        preds = (logits > 0).long() 
+        probs = torch.sigmoid(logits) #don't need .detach() here because it's inside torch.no_grad - but need to include for training loops
 
         preds_list.append(preds.cpu())
         targets_list.append(labels.cpu())
@@ -248,39 +250,39 @@ def evaluate(model, dataloader, criterion, device, epoch, run=DummyRun(), set_na
         running_loss += loss.item() * videos.size(0)
         total += videos.size(0)
 
-        loss = running_loss/total
-        preds = torch.cat(preds_list).numpy()
-        targets = torch.cat(targets_list).numpy()
-        probs = torch.cat(probs_list).numpy()
+    loss = running_loss/total
+    preds = torch.cat(preds_list).numpy()
+    targets = torch.cat(targets_list).numpy()
+    probs = torch.cat(probs_list).numpy()
 
-        result = model_eval(
-            y_true=targets,
-            y_pred=preds,
-            y_proba=probs,
-            specificities=(0.2, 0.4, 0.6),
-            average="weighted",
-            verbose=False,
-            set_name=set_name)
+    result = model_eval(
+        y_true=targets,
+        y_pred=preds,
+        y_proba=probs,
+        specificities=(0.2, 0.4, 0.6),
+        average="weighted",
+        verbose=False,
+        set_name=set_name)
+    
+    metrics = result["metrics"]
+    sens_at_spec = result.get("sensitivities", {})
+
+    run_data = {
+        f"loss/{set_name}": loss,
+        f"acc/{set_name}": 100.0 * metrics["Accuracy"],
+        f"acc_balanced/{set_name}": 100.0 * metrics["Balanced Accuracy"],
+        f"f1/{set_name}": 100.0 * metrics["F1 Score"],
+        f"auc/{set_name}": metrics["ROC AUC"],
+    }
+
+    for t, (sens_t, spec_t, thr_t) in sens_at_spec.items():
+        pct = int(t*100)
+        run_data[f"sens_at_spec_{pct}/{set_name}"] = sens_t
+        run_data[f"spec_at_spec_{pct}/{set_name}"] = spec_t
+        run_data[f"thr_at_spec_{pct}/{set_name}"]  = thr_t
         
-        metrics = result["metrics"]
-        sens_at_spec = result.get("sensitivities", {})
-
-        run_data = {
-            f"loss/{set_name}": loss,
-            f"acc/{set_name}": 100.0 * metrics["Accuracy"],
-            f"acc_balanced/{set_name}": 100.0 * metrics["Balanced Accuracy"],
-            f"f1/{set_name}": 100.0 * metrics["F1 Score"],
-            f"auc/{set_name}": metrics["ROC AUC"],
-        }
-
-        for t, (sens_t, spec_t, thr_t) in sens_at_spec.items():
-            pct = int(t*100)
-            run_data[f"sens_at_spec_{pct}/{set_name}"] = sens_t
-            run_data[f"spec_at_spec_{pct}/{set_name}"] = spec_t
-            run_data[f"thr_at_spec_{pct}/{set_name}"]  = thr_t
-        
-        run.log(run_data, commit=False)
-        return loss, run_data.get(f"acc_balanced/{set_name}"), sens_at_spec
+    run.log(run_data, commit=False)
+    return loss, run_data.get(f"acc_balanced/{set_name}"), sens_at_spec
 
 def save_predictions(studies, all_targets, all_preds, all_probs, log_path, set_name):
     patient_id = [study['patient_id'] for study in studies]

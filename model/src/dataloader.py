@@ -23,6 +23,7 @@ VIEW2ID = {'AP2': 0, 'AP4': 1, 'PLAX': 2}
 LABEL_MAPPING_DICT = {
     'view': {'AP2': 0, 'AP4': 1, 'PLAX': 2},
     'tp': {"MANAG": 0, "INTERVENTION": 1}
+    # 'tp': {"MANAG": 0, "PTCA": 1, "SURG": 1}
 }
 
 NUM_CLASSES = {'tp': len(np.unique(list(LABEL_MAPPING_DICT['tp'].values())))}
@@ -805,7 +806,7 @@ def set_loaders(args, pretrain_view=False, collate_fn=None, use_view_tokens=Fals
                 dropped_class=None, *_args, **_kwargs):
     dset, loaders = dict(), dict()
     # file_suffix = ''
-    file_suffix = '_grouped_by_patient'
+    file_suffix = '_grouped_by_mrn'
 
     if collate_fn is None:
         if use_view_tokens:
@@ -831,7 +832,7 @@ def set_loaders(args, pretrain_view=False, collate_fn=None, use_view_tokens=Fals
         video_info = torch.load(f'{EMB_DIR}/echoprime_{split}{file_suffix}.pt', weights_only=False)
         video_info = filter_by_class(video_info, target, dropped_class)
 
-        if 'grouped_by_patient' not in file_suffix:
+        if 'grouped_by_mrn' not in file_suffix:
             video_info = organize_by_patient(video_info, target=target)
             # video_info_with_tab = torch.load(f'{EMB_DIR}/echoprime_{split}_grouped_by_patient.pt', weights_only=False)
             # breakpoint()
@@ -871,13 +872,13 @@ def set_loaders(args, pretrain_view=False, collate_fn=None, use_view_tokens=Fals
 def set_loaders_multitask(args, pretrain_view=False, use_view_tokens=False,
                           target_cad='cad', target_tp='tp', dropped_class=None, *_args, **_kwargs):
     dset, loaders = dict(), dict()
-    file_suffix = '_grouped_by_patient'
+    file_suffix = '_grouped_by_mrn'
 
     for split in ['train', 'val', 'test']:
         video_info = torch.load(f'{EMB_DIR}/echoprime_{split}{file_suffix}.pt', weights_only=False)
         video_info = filter_by_class(video_info, target_cad, dropped_class)
 
-        if 'grouped_by_patient' not in file_suffix:
+        if 'grouped_by_mrn' not in file_suffix:
             video_info = organize_by_patient(video_info, target=target_cad)
 
         subsample_frac = args.subsample_frac if split == 'train' else None
