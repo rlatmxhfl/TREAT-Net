@@ -1,8 +1,8 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 import sys
-sys.path.append('/home/diane.kim/nature/model')
+sys.path.append('..')
 
 import argparse
 import warnings
@@ -19,11 +19,11 @@ from sklearn.metrics import balanced_accuracy_score, classification_report, accu
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 
-from src.misc import DummyRun, show_trainable
-from src.model_training import get_lr_scheduler
-from src.classifiers import StudyClassifierVideoOnly, StudyClassifierV1, StudyClassifierV1LateFusion
-from src.dataloader import EMB_DIR, LABEL_MAPPING_DICT, NUM_CLASSES, set_loaders
-from src.evaluation import *
+from .misc import DummyRun, show_trainable
+from .model_training import get_lr_scheduler
+from .classifiers import StudyClassifierVideoOnly, StudyClassifierV1, StudyClassifierV1LateFusion
+from .dataloader import EMB_DIR, LABEL_MAPPING_DICT, NUM_CLASSES, set_loaders
+from .evaluation import *
 
 from utils.fix_seed import fix_seed
 
@@ -80,6 +80,7 @@ def train_one_epoch(model, dataloader, criterion, optimizer, device,
 
     for batch in tqdm(dataloader, desc="Training", mininterval=33):
         videos, tabs, views, labels = batch[:4]
+
         videos = videos.to(device)
         tabs = tabs.to(device)
         views = views.to(device)
@@ -96,7 +97,7 @@ def train_one_epoch(model, dataloader, criterion, optimizer, device,
         metrics['probs'].append(probs.detach().cpu())
         metrics['preds'].append(preds.detach().cpu())
         metrics['targets'].append(labels.cpu())
-        
+
         loss.backward()
         optimizer.step()
         if lr_scheduler is not None:
@@ -131,7 +132,7 @@ def train_one_epoch(model, dataloader, criterion, optimizer, device,
         "worst_acc/train": 100.0 * compute_worst_class_accuracy(targets, preds),
         "f1/train": 100.0 * epoch_metrics["F1 Score"],
         "auc/train": epoch_metrics["ROC AUC"],
-    } 
+    }
 
     run.log(run_data, commit=False)
     return run_data["loss/train"], run_data.get("acc_balanced/train")
@@ -172,13 +173,13 @@ def train_model(model, train_loader, val_loader, test_loader, label_mapping, dev
         train_loss, train_bal_acc = train_one_epoch(
             model, train_loader, criterion, optimizer, device,
             lr_scheduler=lr_scheduler, run=run)
-        
+
         val_loss, val_bal_acc, val_sens_data = evaluate(
             model, val_loader, criterion, device, epoch, run=run, set_name='val')
-        
+
         _, test_bal_acc, test_sens_data = evaluate(
             model, test_loader, criterion, device, epoch, run=run, set_name='test')
-        
+
         for target in (0.2, 0.4, 0.6):
             sens_v, spec_v, thr_v = val_sens_data[target]
             sensitivity_stats["val"][target].append((epoch, sens_v, spec_v, thr_v))
@@ -222,7 +223,7 @@ def train_model(model, train_loader, val_loader, test_loader, label_mapping, dev
 
 @torch.no_grad()
 def evaluate(model, dataloader, criterion, device, epoch, run=DummyRun(), set_name="val"):
-    
+
     model.eval()
     running_loss, total = 0.0, 0
 
@@ -240,7 +241,7 @@ def evaluate(model, dataloader, criterion, device, epoch, run=DummyRun(), set_na
 
         loss = criterion(logits.squeeze(), labels.squeeze().float())
 
-        preds = (logits > 0).long() 
+        preds = (logits > 0).long()
         probs = torch.sigmoid(logits) #don't need .detach() here because it's inside torch.no_grad - but need to include for training loops
 
         preds_list.append(preds.cpu())
@@ -263,7 +264,7 @@ def evaluate(model, dataloader, criterion, device, epoch, run=DummyRun(), set_na
         average="weighted",
         verbose=False,
         set_name=set_name)
-    
+
     metrics = result["metrics"]
     sens_at_spec = result.get("sensitivities", {})
 
@@ -280,7 +281,7 @@ def evaluate(model, dataloader, criterion, device, epoch, run=DummyRun(), set_na
         run_data[f"sens_at_spec_{pct}/{set_name}"] = sens_t
         run_data[f"spec_at_spec_{pct}/{set_name}"] = spec_t
         run_data[f"thr_at_spec_{pct}/{set_name}"]  = thr_t
-        
+
     run.log(run_data, commit=False)
     return loss, run_data.get(f"acc_balanced/{set_name}"), sens_at_spec
 
@@ -330,12 +331,12 @@ def main(args):
             study_classifier_init = StudyClassifierVideoOnly
         else:
             raise ValueError(f"Unknown mode {args.mode}")
-            
+
         model = study_classifier_init(
             num_layers=args.num_layers,
             nhead=args.nhead,
             num_classes=NUM_CLASSES['tp'])
-        
+
         model.to(device)
 
         if args.tab_weight is not None and args.mode == 'late_fusion':
