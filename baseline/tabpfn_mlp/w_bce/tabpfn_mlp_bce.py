@@ -120,7 +120,7 @@ def build_classifier(input_dim):
 
 ##################################### training tabpfn + MLP classifier #####################################
 
-def train_model(X_train, y_train, X_val, y_val, X_test, y_test, num_classes=2, 
+def train_model(X_train, y_train, X_val, y_val, X_test, y_test,
                 num_epochs=100, optimizer_="Adam", seed=None, device="cuda"):
 
     def _train_model(X_train, y_train, X_val, y_val, X_test, y_test, seed=seed):
@@ -158,9 +158,9 @@ def train_model(X_train, y_train, X_val, y_val, X_test, y_test, num_classes=2,
         # class_weights = 1.0 / class_counts.float()
         # sample_weights = class_weights[y_train]
 
-        sampler = WeightedRandomSampler(weights=weights, num_samples=len(weights), replacement=True)
+        # sampler = WeightedRandomSampler(weights=weights, num_samples=len(weights), replacement=True)
 
-        train_loader = DataLoader(TensorDataset(emb_train, y_train), batch_size=32, sampler=sampler, shuffle=False)
+        train_loader = DataLoader(TensorDataset(emb_train, y_train), batch_size=32, sampler=None, shuffle=True)
         val_loader = DataLoader(TensorDataset(emb_val, y_val), batch_size=32, shuffle=False)
         test_loader = DataLoader(TensorDataset(emb_test, y_test), batch_size=32, shuffle=False)
 
@@ -228,7 +228,8 @@ def train_model(X_train, y_train, X_val, y_val, X_test, y_test, num_classes=2,
         with torch.no_grad():
             logits = model(emb_test.to(device)).squeeze(1)
             probs = torch.sigmoid(logits)
-            preds = (probs >= 0.5).long()
+            preds = (probs >= 0.5).long().cpu().numpy()
+            y_test  = y_test.long().cpu().numpy()
         
         model_eval(y_true=y_test, y_pred=preds, y_proba=probs, positive_class=1, 
              specificities=(0.2, 0.4, 0.6), average="weighted", verbose=True, set_name="test")
