@@ -2,7 +2,7 @@ import os
 
 import sys
 sys.path.append('/home/diane.kim/ACS/tabular/model/TabPFN/src')
-sys.path.append('/mnt/rcl-server/workspace/diane/nature')
+sys.path.append('/home/diane.kim/nature/model')
 
 import numpy as np
 import pandas as pd
@@ -20,23 +20,7 @@ from tabpfn.classifier import TabPFNClassifier
 from tabpfn.config import ModelInterfaceConfig
 from tabpfn.preprocessing import PreprocessorConfig
 
-from model.evaluation import *
-
-from sklearn.metrics import (
-    accuracy_score,
-    mean_absolute_error,
-    mean_squared_error,
-    root_mean_squared_error,
-    r2_score,
-    roc_auc_score,
-    f1_score,
-    precision_score,
-    recall_score,
-    balanced_accuracy_score,
-    classification_report,
-    confusion_matrix,
-    roc_curve
-)
+from src.evaluation import *
 
 ##################################### inspection/debug #####################################
 
@@ -225,6 +209,10 @@ def train_model(X_train, y_train, X_val, y_val, X_test, y_test, num_classes=2,
                 val_acc = correct/total_samples
             
             print(f"Epoch {epoch:03d} | train loss {train_loss:.3f} | val loss {val_loss:.3f} | val accuracy {val_acc:.3f}")
+        
+        os.makedirs("checkpoints", exist_ok=True)
+        torch.save({k: v.cpu() for k, v in model.state_dict().items()}, f"checkpoints/tabweights_final_epoch_seed{seed}.pt")
+        print(f"Final epoch model weights saved for seed {seed}.")
         
         model.eval()
         with torch.no_grad():

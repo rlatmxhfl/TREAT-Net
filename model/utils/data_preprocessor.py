@@ -271,9 +271,18 @@ class DataPreprocessor:
         # else:
         #     return self._X_test_for_pred_analysis
 
-def load_data(binary=True, seed=0):
+def load_data(binary=True, seed=0, ref_df=None):
+    
+    file = "/home/diane.kim/nature/data/final/dad_cleaned_full_6865_wTTE.csv"
+    
+    ACS = pd.read_csv(file, header=0, na_values="")
 
-    ACS = pd.read_csv("/mnt/rcl-server/workspace/diane/nature/data/final/dad_cleaned_full_6865_wTTE.csv", header=0, na_values="")
+    if ref_df is not None:
+        ref_df = pd.read_csv(ref_df)
+        kept_mrn = ACS['mrn_1'][ACS['Split'].isin(['train', 'val'])].unique().tolist()
+        test_mrn = ref_df['mrn_1'][ref_df['Split'].isin(['test'])].unique().tolist()
+        kept_mrn.extend(test_mrn)
+        ACS = ACS.loc[ACS['mrn_1'].isin(kept_mrn)]
 
     train_ids = ACS[ACS["Split"] == "train"]["mrn_1"].tolist()
     val_ids = ACS[ACS["Split"] == "val"]["mrn_1"].tolist()

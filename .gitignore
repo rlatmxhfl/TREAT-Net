@@ -14,6 +14,8 @@ __pycache__/
 # Logs
 *.log
 nohup.out
+/baseline/tabpfn_mlp/first_run/
+/baseline/tabpfn/default_param/first_run/
 
 # Jupyter Notebook checkpoints
 *.ipynb_checkpoints/
