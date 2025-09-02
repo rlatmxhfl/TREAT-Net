@@ -45,7 +45,7 @@ for seed in "${seeds[@]}"; do
     --num_workers 0 \
     --batch_size 32 \
     --eval_batch_size 1 \
-    --wdb_group Jun27_sgd_1000eps \
+    --wdb_group 2262_wTTE_v1 \
     -lr 1.e-4 \
     -wd 1.e-2 \
     --num_layers 2 \
@@ -55,7 +55,10 @@ for seed in "${seeds[@]}"; do
     --epochs 1000 \
     --loss_fn ce \
     --seed ${seed} \
-    --exp_dir /raid/home/minht/projects/recom_therapy/checkpoint/minht/$datetime \
-    --mode video+tab \
-    $@ > crossattn_seed${seed}.log 2>&1 &
+    --exp_dir /raid/home/minht/projects/nature/checkpoint/minht/$datetime \
+    --mode video \
+    $@
 done
+
+#    --exp_dir /home/diane.kim/nature/baseline/echoprime/checkpoint/$datetime \
+#  > echprime_seed${seed}.log 2>&1 &

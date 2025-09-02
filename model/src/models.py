@@ -15,7 +15,7 @@ import random
 import numpy as np
 import pandas as pd
 import matplotlib as plt
-from sklearn.metrics import balanced_accuracy_score, classification_report, accuracy_score, f1_score, roc_curve, auc, confusion_matrix
+# from sklearn.metrics import balanced_accuracy_score, classification_report, accuracy_score, f1_score, roc_curve, auc, confusion_matrix
 from scipy.interpolate import interp1d
 from tqdm import tqdm
 
@@ -376,82 +376,4 @@ def main(args):
                     multitask=args.multitask,
                     )
 
-        # if args.save_embeddings:
-        #     for split in ['train', 'val', 'test']:
-        #         save_embeddings(model, split, args.use_view_tokens,
-        #                         args.target, args, device)
 
-# def evaluate_view_classification(model, dataloader, device, set_name="val"):
-#     model.eval()
-#     total, correct = 0, 0
-#     all_preds, all_labels = [], []
-
-#     with torch.no_grad():
-#         for videos, views, labels, _ in dataloader:
-#             videos = videos.to(device)
-#             views = views.to(device)
-#             labels = labels.to(device)
-
-#             outputs = model(videos, views, training=False, head="view")
-#             preds = outputs.argmax(dim=1)
-
-#             all_preds.append(preds.cpu())
-#             all_labels.append(labels.cpu())
-#             correct += (preds == labels).sum().item()
-#             total += labels.size(0)
-
-#     acc = 100.0 * accuracy_score(torch.cat(all_labels), torch.cat(all_preds))
-#     print(f"[{set_name.capitalize()}] View classification accuracy: {acc:.2f}%")
-#     return acc
-
-
-# def save_embeddings(model, split, use_view_tokens, target, args, device):
-#     model.eval()
-#     model.to(device)
-
-#     file_suffix = '_grouped_by_patient' if use_view_tokens else ''
-#     path = f'{EMB_DIR}/echoprime_{split}{file_suffix}.pt'
-
-#     # Load grouped_by_patient video_info (study-level)
-#     video_info = torch.load(path, weights_only=False)
-#     video_info = filter_by_class(video_info, target, dropped_class=None)
-
-#     # Create dataset
-#     dataset = ViewLabelV1(organize_by_patient(video_info, target=target))
-#     dataloader = DataLoader(
-#         dataset,
-#         batch_size=128,
-#         shuffle=False,
-#         num_workers=args.num_workers,
-#         collate_fn=partial(collate_fn_v1, pretrain=False)
-#     )
-
-#     embeddings_dict = {}
-
-#     with torch.no_grad():
-#         for batch in tqdm(dataloader, desc=f"Extracting embeddings [{split}]"):
-#             videos, _, _, _, indices = batch
-#             videos = videos.to(device)
-
-#             # Extract CLS embedding (study-level)
-#             cls_embeddings = model.extract_cls_embedding(videos)  # [B, D]
-
-#             for i, idx in enumerate(indices):
-#                 idx = int(idx)
-#                 embeddings_dict[idx] = cls_embeddings[i].cpu()
-
-#     # Load grouped_by_patient video_info (study-level)
-#     path = f'{EMB_DIR}/echoprime_{split}_grouped_by_patient.pt'
-#     video_info = torch.load(path, weights_only=False)
-
-#     # Add embedding to video_info
-#     for idx in range(len(video_info)):
-#         if idx in embeddings_dict:
-#             video_info[idx]['embedding'] = embeddings_dict[idx]
-#         else:
-#             print(f"Warning: Missing embedding for index {idx}")
-
-#     # Save enriched data
-#     save_path = f'{EMB_DIR}/echoprime_{split}{file_suffix}_with_{args.target}_embeddings.pt'
-#     torch.save(video_info, save_path)
-#     print(f"✅ Saved study-level embeddings to {save_path}")
