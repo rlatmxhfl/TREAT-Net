@@ -2,7 +2,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 import sys
-sys.path.append('/home/diane.kim/nature/model')
+sys.path.append('../../model')
 
 from src.models import main, parse_args
 

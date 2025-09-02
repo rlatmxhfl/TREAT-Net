@@ -150,9 +150,14 @@ def train_model(model, train_loader, val_loader, test_loader, label_mapping, dev
                                         )
     else:
         optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, model.parameters()),
-                                    lr=lr, weight_decay=wd, momentum=0.9, nesterov=True)
-    lr_scheduler = get_lr_scheduler(optimizer, lr, len(train_loader), num_epochs - epoch_start, pct_start=0.1)
-
+                                    lr=lr, weight_decay=wd, momentum=0.9, nesterov=False)
+    # lr_scheduler = get_lr_scheduler(optimizer, lr, len(train_loader), num_epochs - epoch_start, pct_start=0.3)
+    lr_scheduler = torch.optim.lr_scheduler.OneCycleLR(
+        optimizer,
+        max_lr=lr, epochs=num_epochs,
+        steps_per_epoch=len(train_loader),
+        pct_start=0.3
+    )
     show_trainable(model)
 
     criterion = nn.BCEWithLogitsLoss()

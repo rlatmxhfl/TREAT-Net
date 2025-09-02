@@ -45,17 +45,17 @@ for seed in "${seeds[@]}"; do
     --num_workers 0 \
     --batch_size 32 \
     --eval_batch_size 1 \
-    --wdb_group Jun27_sgd_1000eps \
+    --wdb_group 2262_wTTE_v1.1c_100ep \
     -lr 1.e-4 \
     -wd 1.e-2 \
     --num_layers 2 \
     --nhead 4 \
     --optim sgd \
     --target tp \
-    --epochs 1000 \
+    --epochs 100 \
     --loss_fn ce \
     --seed ${seed} \
     --exp_dir /raid/home/minht/projects/recom_therapy/checkpoint/minht/$datetime \
     --mode video+tab \
-    $@ > crossattn_seed${seed}.log 2>&1 &
+    $@
 done
