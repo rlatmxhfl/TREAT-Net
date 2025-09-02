@@ -25,7 +25,7 @@ from .classifiers import StudyClassifierVideoOnly, StudyClassifierV1, StudyClass
 from .dataloader import EMB_DIR, LABEL_MAPPING_DICT, NUM_CLASSES, set_loaders
 from .evaluation import *
 
-from utils.fix_seed import fix_seed
+from ..utils.fix_seed import fix_seed
 
 VIEWS = ['AP2', 'AP4', 'PLAX']
 
@@ -346,6 +346,16 @@ def main(args):
 
         if args.tab_weight is not None and args.mode == 'late_fusion':
             tab_state = torch.load(args.tab_weight, map_location="cpu")
+
+            ###### 2-logit softmax to single-logit sigmoid ######
+
+            weight = tab_state["2.weight"]
+            if weight.dim() == 2 and weight.size(0) == 2 and model.tab_classifier[2].weight.size(0) == 1:
+                weight_single = (weight[1] - weight[0]).unsqueeze(0)
+                tab_state["2.weight"] = weight_single
+
+            #####################################################
+
             missing, unexpected = model.tab_classifier.load_state_dict(tab_state, strict=False)
             print("→ Loaded tab_classifier weights from", args.tab_weight,
                 "\n   • missing keys:", missing,

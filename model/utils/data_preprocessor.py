@@ -275,7 +275,7 @@ def load_data(binary=True, seed=0, ref_df=None):
     
     file = "/home/diane.kim/nature/data/final/dad_cleaned_full_6865_wTTE.csv"
     
-    ACS = pd.read_csv(file, header=0, na_values="")
+    ACS = pd.read_csv(file, header=0)
 
     if ref_df is not None:
         ref_df = pd.read_csv(ref_df)

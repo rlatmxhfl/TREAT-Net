@@ -17,8 +17,10 @@ nohup.out
 /baseline/tabpfn_mlp/first_run/
 /baseline/tabpfn/default_param/first_run/
 
-# Jupyter Notebook checkpoints
+# checkpoints
 *.ipynb_checkpoints/
+*.pth
+/baseline/tabpfn_mlp/checkpoints
 
 # Virtual environments
 .venv/

@@ -57,5 +57,6 @@ for seed in "${seeds[@]}"; do
     --seed ${seed} \
     --exp_dir /home/diane.kim/nature/scripts/checkpoint/$datetime \
     --mode late_fusion \
+    --tab_weight /home/diane.kim/nature/baseline/tabpfn_mlp/checkpoints/tabweights_final_epoch_seed7_best.pt \
     $@ 
 done

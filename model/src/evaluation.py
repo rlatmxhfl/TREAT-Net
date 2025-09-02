@@ -1,5 +1,6 @@
 import os
 
+import torch
 import numpy as np
 
 from sklearn.metrics import (
@@ -68,10 +69,9 @@ def model_eval(y_true, y_pred, y_proba, positive_class=1, specificities=(0.2, 0.
          average="weighted", verbose=True, set_name=None):
     
     y_true = np.asarray(y_true)
-    
-    scores = None
-
     y_proba=np.asarray(y_proba)
+
+    scores = None
 
     if y_proba.ndim == 1: #already positive-class probability
         scores = y_proba #shape (N,)

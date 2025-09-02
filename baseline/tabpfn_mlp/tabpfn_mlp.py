@@ -112,10 +112,10 @@ def get_tab_embeddings(model, X_train, X_val, X_test):
 
 def build_classifier(input_dim, num_classes):
     return nn.Sequential(
-        nn.Linear(input_dim, 512, bias=False),
+        nn.Linear(input_dim, 192, bias=False),
         nn.ReLU(),
         # nn.Dropout(0.1),
-        nn.Linear(512, num_classes, bias=False),
+        nn.Linear(192, num_classes, bias=False),
     )
 
 ##################################### training tabpfn + MLP classifier #####################################
@@ -161,9 +161,9 @@ def train_model(X_train, y_train, X_val, y_val, X_test, y_test, num_classes=2,
         if optimizer_ == "Adam":
             optimizer = optim.Adam(model.parameters(), lr=1e-2, weight_decay=0)
         if optimizer_ == "SGD":
-            optimizer = optim.SGD(model.parameters(), lr=1e-1, momentum=0.9, nesterov=True, weight_decay=1e-3)
+            optimizer = optim.SGD(model.parameters(), lr=1e-3, momentum=0.9, nesterov=True, weight_decay=1e-3)
 
-        scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=1e-1, steps_per_epoch=len(train_loader.dataset),
+        scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=1e-3, steps_per_epoch=len(train_loader),
                                                 epochs=num_epochs, pct_start=0.3, anneal_strategy='cos')
 
         # x_batch, y_batch = next(iter(train_loader))
