@@ -68,8 +68,13 @@ def _sens_at_spec(y_true, y_scores, targets=(0.2, 0.4, 0.6)):
 def model_eval(y_true, y_pred, y_proba, positive_class=1, specificities=(0.2, 0.4, 0.6), 
          average="weighted", verbose=True, set_name=None):
     
-    y_true = np.asarray(y_true)
-    y_proba=np.asarray(y_proba)
+    def to_np(x):
+        if torch.is_tensor(x):
+            return x.detach().cpu().numpy()
+        return np.asarray(x)
+    
+    y_true = to_np(y_true)
+    y_proba = to_np(y_proba)
 
     scores = None
 
@@ -87,7 +92,7 @@ def model_eval(y_true, y_pred, y_proba, positive_class=1, specificities=(0.2, 0.
     else:
         scores = y_proba.ravel() #flatten to 1D if possible
 
-    y_pred = np.asarray(y_pred)
+    y_pred = to_np(y_pred)
 
     metrics = {
         "ROC AUC": (roc_auc_score(y_true, scores) if scores is not None else np.nan),

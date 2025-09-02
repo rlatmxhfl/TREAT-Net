@@ -20,7 +20,7 @@ nohup.out
 # checkpoints
 *.ipynb_checkpoints/
 *.pth
-/baseline/tabpfn_mlp/checkpoints
+**/checkpoints/
 scripts/checkpoint
 
 # Virtual environments
