@@ -361,17 +361,9 @@ def main(args):
         model.to(device)
 
         if args.tab_weight is not None and args.mode == 'late_fusion':
+
             tab_state = torch.load(args.tab_weight, map_location="cpu")
-
-            ###### 2-logit softmax to single-logit sigmoid ######
-
-            weight = tab_state["2.weight"]
-            if weight.dim() == 2 and weight.size(0) == 2 and model.tab_classifier[2].weight.size(0) == 1:
-                weight_single = (weight[1] - weight[0]).unsqueeze(0)
-                tab_state["2.weight"] = weight_single
-
-            #####################################################
-
+            breakpoint()
             missing, unexpected = model.tab_classifier.load_state_dict(tab_state, strict=False)
             print("→ Loaded tab_classifier weights from", args.tab_weight,
                 "\n   • missing keys:", missing,
@@ -380,6 +372,25 @@ def main(args):
                 print("Proceeding to model weight freezing.")
                 for p in model.tab_classifier.parameters():
                     p.requires_grad_(False)
+
+            breakpoint()
+            # ###### 2-logit softmax to single-logit sigmoid ######
+            #
+            # weight = tab_state["2.weight"]
+            # if weight.dim() == 2 and weight.size(0) == 2 and model.tab_classifier[2].weight.size(0) == 1:
+            #     weight_single = (weight[1] - weight[0]).unsqueeze(0)
+            #     tab_state["2.weight"] = weight_single
+            #
+            # #####################################################
+            #
+            # missing, unexpected = model.tab_classifier.load_state_dict(tab_state, strict=False)
+            # print("→ Loaded tab_classifier weights from", args.tab_weight,
+            #     "\n   • missing keys:", missing,
+            #     "\n   • unexpected keys:", unexpected)
+            # if not missing and not unexpected:
+            #     print("Proceeding to model weight freezing.")
+            #     for p in model.tab_classifier.parameters():
+            #         p.requires_grad_(False)
 
         set_loaders_fn = set_loaders_multitask if args.multitask else set_loaders
         loaders = set_loaders_fn(args, use_view_tokens=args.use_view_tokens, target=args.target,

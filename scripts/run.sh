@@ -25,7 +25,8 @@
 # seed=$SLURM_ARRAY_TASK_ID
 datetime=$(date +"%Y-%m-%d_%H-%M-%S")
 
-seeds=(0 12 21 7 15)
+#seeds=(0 12 21 7 15)
+seeds=(0)
 
 # if [ -z "$seed" ]; then
 #   seed=0 #
@@ -41,22 +42,24 @@ for seed in "${seeds[@]}"; do
   echo "Running with seed ${seed}."
 
   python main.py \
-    --exp_name treatnet_0.8/0.2_seed0 \
+    --exp_name treatnet \
     --num_workers 0 \
     --batch_size 32 \
     --eval_batch_size 1 \
-    --wdb_group 2262_wTTE_v1.1c_pos_weight \
+    --wdb_group 2262_wTTE_v1.1c \
     -lr 1.e-4 \
     -wd 1.e-2 \
     --num_layers 2 \
     --nhead 4 \
     --optim sgd \
     --target tp \
-    --epochs 100 \
+    --epochs 1000 \
     --loss_fn ce \
     --seed ${seed} \
-    --exp_dir ./checkpoint/$datetime \
+    --exp_dir scripts/checkpoint/$datetime \
     --mode late_fusion \
-    --tab_weight /home/diane.kim/nature/baseline/tabpfn_mlp/w_bce/checkpoints/tabweights_BCE_final_epoch_seed12_best.pt \
-    $@ 
+    --tab_weight /mnt/rcl-server/workspace/diane/ACS_folder_copy/DFR/DFR_ensemble/final_MANAG_vs_nonMANAG_seed12.pt \
+    "$@"
 done
+
+#    --tab_weight /home/diane.kim/nature/baseline/tabpfn_mlp/checkpoints/tabweights_final_epoch_seed7_best.pt \

@@ -55,7 +55,7 @@ for seed in "${seeds[@]}"; do
     --epochs 100 \
     --loss_fn ce \
     --seed ${seed} \
-    --exp_dir /raid/home/minht/projects/recom_therapy/checkpoint/minht/$datetime \
+    --exp_dir /scripts/checkpoint/minht/$datetime \
     --mode video+tab \
     $@
 done
