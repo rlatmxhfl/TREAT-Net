@@ -269,9 +269,15 @@ class StudyClassifierV1LateFusion(StudyClassifierV1):
         task_logit = self.task_classifier(cls_repr)  # [B, 1]
         tab_logit = self.tab_classifier(tabular_feat)  # [B, 1]
 
-        fused = torch.cat([task_logit, tab_logit], dim=1)  # [B, 2]
-        fused = self.layer_norm(fused)  # normalize
-        return fused.mean(dim=1)
+        task_weight = 0.8
+        tab_weight = 0.2
+
+        fused = task_weight * task_logit + tab_weight * tab_logit
+        return fused.squeeze(1)
+
+        # fused = torch.cat([task_logit, tab_logit], dim=1)  # [B, 2]
+        # fused = self.layer_norm(fused)  # normalize
+        # return fused.mean(dim=1)
 
 
 class StudyClassifierMultiTask(StudyClassifier):

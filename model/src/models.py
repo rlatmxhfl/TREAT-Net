@@ -160,7 +160,23 @@ def train_model(model, train_loader, val_loader, test_loader, label_mapping, dev
     )
     show_trainable(model)
 
-    criterion = nn.BCEWithLogitsLoss()
+    # criterion = nn.BCEWithLogitsLoss()
+
+    ###### modification to criterion to match mlp ######
+
+    all_labels = []
+    for batch in train_loader:
+        labels = batch[3]
+        all_labels.append(labels[0])
+    all_labels = torch.cat(all_labels).long()
+
+    pos_freq = all_labels.sum().item()
+    neg_freq = len(all_labels) - pos_freq
+    pos_weight_val = neg_freq / (pos_freq + 1e-8)
+
+    criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(pos_weight_val, dtype=torch.float, device=device))
+
+    ####################################################
 
     train_losses, val_losses = [], []
     best_val_loss = float("inf")
@@ -376,7 +392,7 @@ def main(args):
                     label_mapping=LABEL_MAPPING_DICT[args.target],
                     device=device,
                     save_path=exp_dir,
-                    checkpoint_name=f"embedding_{args.mode}_balancedSampler",
+                    checkpoint_name=f"embedding_{args.mode}",
                     num_epochs=args.epochs,
                     lr=args.learning_rate,
                     wd=args.weight_decay,

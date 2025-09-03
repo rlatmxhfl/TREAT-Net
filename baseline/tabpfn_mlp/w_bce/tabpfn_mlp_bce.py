@@ -22,55 +22,6 @@ from tabpfn.preprocessing import PreprocessorConfig
 
 from src.evaluation import *
 
-##################################### inspection/debug #####################################
-
-def inspect_tensor(x, name="tensor", max_print=5):
-    if isinstance(x, np.ndarray):
-        arr = x
-        dev = "numpy"
-        dtype = arr.dtype
-    elif torch.is_tensor(x):
-        arr = x.detach().cpu().numpy()
-        dev = str(x.device)
-        dtype = x.dtype
-    else:
-        print(f"[{name}] not a tensor/ndarray:", type(x))
-        return
-    
-    print(f"[{name}] shape={arr.shape} dtype={dtype} device={dev} "
-          f"nan={np.isnan(arr).any()} inf={np.isinf(arr).any()}")
-    if arr.ndim > 0 and arr.size:
-        flat = arr.reshape(arr.shape[0], -1) if arr.ndim > 1 else arr
-        print(f"  min={np.nanmin(arr):.6g} max={np.nanmax(arr):.6g} mean={np.nanmean(arr):.6g} std={np.nanstd(arr):.6g}")
-        print("  sample rows:")
-        print(arr[:max_print] if arr.ndim <= 2 else arr[:max_print, :min(flat.shape[1], max_print)])
-
-def inspect_labels(y, name="labels"):
-    if torch.is_tensor(y):
-        y_np = y.detach().cpu().numpy()
-    else:
-        y_np = np.asarray(y)
-    print(f"[{name}] shape={y_np.shape} uniq={np.unique(y_np, return_counts=True)} "
-          f"dtype={y_np.dtype} nan={np.isnan(y_np).any() if y_np.dtype.kind in 'fc' else False}")
-
-def check_no_nans(*tensors):
-    for i, t in enumerate(tensors):
-        if torch.is_tensor(t):
-            bad = ~torch.isfinite(t)
-            assert not bad.any().item(), f"Non-finite values in tensor #{i}"
-        else:
-            a = np.asarray(t)
-            assert np.isfinite(a).all(), f"Non-finite values in array #{i}"
-
-def check_gradients(model):
-    total = 0.0
-    for n, p in model.named_parameters():
-        if p.grad is not None:
-            g = p.grad.detach()
-            total += float(g.abs().sum().cpu())
-    print(f"[grads] total |grad| = {total:.6g}")
-    return total
-
 ##################################### initiating & evaluating tabpfn #####################################
 
 def init_tabpfn(seed=None, balance_probabilities=True):
@@ -139,8 +90,8 @@ def train_model(X_train, y_train, X_val, y_val, X_test, y_test,
         pos_weight_val = neg_freq / (pos_freq + 1e-8)
         criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(pos_weight_val, dtype=torch.float, device=device))
 
-        weights = (1. / torch.bincount(y_train.long()))[y_train.long()]
-        sampler = WeightedRandomSampler(weights=weights.cpu(), num_samples=len(weights), replacement=True)
+        # weights = (1. / torch.bincount(y_train.long()))[y_train.long()]
+        # sampler = WeightedRandomSampler(weights=weights.cpu(), num_samples=len(weights), replacement=True)
 
         # inspect_tensor(emb_train, "emb_train")
         # inspect_tensor(emb_val, "emb_val")
@@ -239,3 +190,52 @@ def train_model(X_train, y_train, X_val, y_val, X_test, y_test,
     model = _train_model(X_train, y_train, X_val, y_val, X_test, y_test, seed=seed)
 
     return model
+
+##################################### inspection/debug #####################################
+
+def inspect_tensor(x, name="tensor", max_print=5):
+    if isinstance(x, np.ndarray):
+        arr = x
+        dev = "numpy"
+        dtype = arr.dtype
+    elif torch.is_tensor(x):
+        arr = x.detach().cpu().numpy()
+        dev = str(x.device)
+        dtype = x.dtype
+    else:
+        print(f"[{name}] not a tensor/ndarray:", type(x))
+        return
+    
+    print(f"[{name}] shape={arr.shape} dtype={dtype} device={dev} "
+          f"nan={np.isnan(arr).any()} inf={np.isinf(arr).any()}")
+    if arr.ndim > 0 and arr.size:
+        flat = arr.reshape(arr.shape[0], -1) if arr.ndim > 1 else arr
+        print(f"  min={np.nanmin(arr):.6g} max={np.nanmax(arr):.6g} mean={np.nanmean(arr):.6g} std={np.nanstd(arr):.6g}")
+        print("  sample rows:")
+        print(arr[:max_print] if arr.ndim <= 2 else arr[:max_print, :min(flat.shape[1], max_print)])
+
+def inspect_labels(y, name="labels"):
+    if torch.is_tensor(y):
+        y_np = y.detach().cpu().numpy()
+    else:
+        y_np = np.asarray(y)
+    print(f"[{name}] shape={y_np.shape} uniq={np.unique(y_np, return_counts=True)} "
+          f"dtype={y_np.dtype} nan={np.isnan(y_np).any() if y_np.dtype.kind in 'fc' else False}")
+
+def check_no_nans(*tensors):
+    for i, t in enumerate(tensors):
+        if torch.is_tensor(t):
+            bad = ~torch.isfinite(t)
+            assert not bad.any().item(), f"Non-finite values in tensor #{i}"
+        else:
+            a = np.asarray(t)
+            assert np.isfinite(a).all(), f"Non-finite values in array #{i}"
+
+def check_gradients(model):
+    total = 0.0
+    for n, p in model.named_parameters():
+        if p.grad is not None:
+            g = p.grad.detach()
+            total += float(g.abs().sum().cpu())
+    print(f"[grads] total |grad| = {total:.6g}")
+    return total

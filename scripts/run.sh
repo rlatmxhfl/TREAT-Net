@@ -41,21 +41,21 @@ for seed in "${seeds[@]}"; do
   echo "Running with seed ${seed}."
 
   python main.py \
-    --exp_name treatnet \
+    --exp_name treatnet_0.8/0.2_seed0 \
     --num_workers 0 \
     --batch_size 32 \
     --eval_batch_size 1 \
-    --wdb_group 2262_wTTE_v1.1c \
+    --wdb_group 2262_wTTE_v1.1c_pos_weight \
     -lr 1.e-4 \
     -wd 1.e-2 \
     --num_layers 2 \
     --nhead 4 \
     --optim sgd \
     --target tp \
-    --epochs 1000 \
+    --epochs 100 \
     --loss_fn ce \
     --seed ${seed} \
-    --exp_dir /home/diane.kim/nature/scripts/checkpoint/$datetime \
+    --exp_dir ./checkpoint/$datetime \
     --mode late_fusion \
     --tab_weight /home/diane.kim/nature/baseline/tabpfn_mlp/w_bce/checkpoints/tabweights_BCE_final_epoch_seed12_best.pt \
     $@ 
