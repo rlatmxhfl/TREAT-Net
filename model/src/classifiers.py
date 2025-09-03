@@ -248,10 +248,11 @@ class StudyClassifierV1LateFusion(StudyClassifierV1):
             nn.ReLU(),
             nn.Linear(192, 1, bias=False))
 
-        self.layer_norm = nn.LayerNorm(2)  # normalize fused [task_logit, tab_logit]
+        # self.layer_norm = nn.LayerNorm(2)  # normalize fused [task_logit, tab_logit]
+
+        self.fusion_logits = nn.Parameter(torch.zeros(2))  # learnable
 
     def forward(self, x, tabular_feat=None, view=None, training=False, head="task"):
-        B, L, D = x.shape
 
         if tabular_feat is not None:
             tabular_emb = self.tabular_proj(tabular_feat).unsqueeze(1)  # [B, 1, D]
@@ -269,15 +270,9 @@ class StudyClassifierV1LateFusion(StudyClassifierV1):
         task_logit = self.task_classifier(cls_repr)  # [B, 1]
         tab_logit = self.tab_classifier(tabular_feat)  # [B, 1]
 
-        task_weight = 0.8
-        tab_weight = 0.2
-
-        fused = task_weight * task_logit + tab_weight * tab_logit
-        return fused.squeeze(1)
-
-        # fused = torch.cat([task_logit, tab_logit], dim=1)  # [B, 2]
-        # fused = self.layer_norm(fused)  # normalize
-        # return fused.mean(dim=1)
+        w = torch.softmax(self.fusion_logits, dim=0)
+        fused_logits = w[0] * task_logit + w[1] * tab_logit
+        return fused_logits
 
 
 class StudyClassifierMultiTask(StudyClassifier):

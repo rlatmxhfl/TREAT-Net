@@ -151,13 +151,13 @@ def train_model(model, train_loader, val_loader, test_loader, label_mapping, dev
     else:
         optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, model.parameters()),
                                     lr=lr, weight_decay=wd, momentum=0.9, nesterov=False)
-    # lr_scheduler = get_lr_scheduler(optimizer, lr, len(train_loader), num_epochs - epoch_start, pct_start=0.3)
-    lr_scheduler = torch.optim.lr_scheduler.OneCycleLR(
-        optimizer,
-        max_lr=lr, epochs=num_epochs,
-        steps_per_epoch=len(train_loader),
-        pct_start=0.3
-    )
+    lr_scheduler = get_lr_scheduler(optimizer, lr, len(train_loader), num_epochs - epoch_start, pct_start=0.1)
+    # lr_scheduler = torch.optim.lr_scheduler.OneCycleLR(
+    #     optimizer,
+    #     max_lr=lr, epochs=num_epochs,
+    #     steps_per_epoch=len(train_loader),
+    #     pct_start=0.3
+    # )
     show_trainable(model)
 
     # criterion = nn.BCEWithLogitsLoss()
@@ -363,7 +363,6 @@ def main(args):
         if args.tab_weight is not None and args.mode == 'late_fusion':
 
             tab_state = torch.load(args.tab_weight, map_location="cpu")
-            breakpoint()
             missing, unexpected = model.tab_classifier.load_state_dict(tab_state, strict=False)
             print("→ Loaded tab_classifier weights from", args.tab_weight,
                 "\n   • missing keys:", missing,
@@ -373,7 +372,6 @@ def main(args):
                 for p in model.tab_classifier.parameters():
                     p.requires_grad_(False)
 
-            breakpoint()
             # ###### 2-logit softmax to single-logit sigmoid ######
             #
             # weight = tab_state["2.weight"]

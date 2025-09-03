@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # List of seeds
-seeds=(0 12 21 7 15)
-# seeds=(7)
+#seeds=(0 21 7 15)
+seeds=(7)
 
 for seed in "${seeds[@]}"
 do
