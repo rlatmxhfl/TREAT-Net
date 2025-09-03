@@ -21,7 +21,7 @@ nohup.out
 *.ipynb_checkpoints/
 *.pth
 **/checkpoints/
-**/checkpoint/
+/checkpoint/
 scripts/checkpoint
 
 # Virtual environments
