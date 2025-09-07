@@ -17,7 +17,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         seed = int(sys.argv[1])
     else:
-        seed = 0  # fallback default if not passed
+        seed = 21 # fallback default if not passed
 
     print(f"Running with seed: {seed}")
     fix_seed(seed)

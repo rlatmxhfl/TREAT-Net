@@ -327,7 +327,7 @@ def load_data(binary=True, seed=0, ref_df=None):
         'malignancy',
         'chf',
         'prior_infarction',
-        'EF_category',
+        # 'EF_category',
         # 'CAD_Original'
     ]
 
@@ -338,7 +338,7 @@ def load_data(binary=True, seed=0, ref_df=None):
     numerical_columns = [
         'age',
         'BMI',
-        'EF'
+        # 'EF'
     ]
 
     preprocessor = DataPreprocessor(
@@ -351,6 +351,8 @@ def load_data(binary=True, seed=0, ref_df=None):
     
     X_train, X_val, X_test, y_train, y_val, y_test = preprocessor.preprocess(ACS, drop_missing=False)
     # X_train_df, X_test_df = preprocessor.get_dfs()
+
+    print(preprocessor.get_column_names)
 
     X_train = torch.tensor(X_train, dtype=torch.float32)
     X_val = torch.tensor(X_val, dtype=torch.float32)

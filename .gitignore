@@ -14,8 +14,10 @@ __pycache__/
 # Logs
 *.log
 nohup.out
-/baseline/tabpfn_mlp/first_run/
-/baseline/tabpfn/default_param/first_run/
+run.pid
+**/first_run/
+**/first_run/
+**/w_EF
 
 # checkpoints
 *.ipynb_checkpoints/
@@ -28,3 +30,7 @@ scripts/checkpoint
 .venv/
 env/
 venv/
+
+# misc
+embedding_count.ipynb
+/misc_not_for_push/

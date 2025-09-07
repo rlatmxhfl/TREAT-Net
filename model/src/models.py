@@ -25,9 +25,21 @@ from .classifiers import StudyClassifierVideoOnly, StudyClassifierV1, StudyClass
 from .dataloader import EMB_DIR, LABEL_MAPPING_DICT, NUM_CLASSES, set_loaders
 from .evaluation import *
 
-from ..utils.fix_seed import fix_seed
+# from model.utils.fix_seed import fix_seed
 
 VIEWS = ['AP2', 'AP4', 'PLAX']
+
+def fix_seed(seed, benchmark=False):
+    os.environ['PYTHONHASHSEED'] = str(seed)
+
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  
+
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = benchmark
 
 def parse_args():
         parser = argparse.ArgumentParser()

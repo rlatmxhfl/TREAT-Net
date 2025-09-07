@@ -139,7 +139,7 @@ def train_model(X_train, y_train, X_val, y_val, X_test, y_test,
         pos_weight_val = neg_freq / (pos_freq + 1e-8)
         criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(pos_weight_val, dtype=torch.float, device=device))
 
-        weights = (1. / torch.bincount(y_train.long()))[y_train.long()]
+        # weights = (1. / torch.bincount(y_train.long()))[y_train.long()]
         # sampler = WeightedRandomSampler(weights=weights.cpu(), num_samples=len(weights), replacement=True)
 
         # inspect_tensor(emb_train, "emb_train")
@@ -158,11 +158,11 @@ def train_model(X_train, y_train, X_val, y_val, X_test, y_test,
         # class_weights = 1.0 / class_counts.float()
         # sample_weights = class_weights[y_train]
 
-        sampler = WeightedRandomSampler(weights=weights, num_samples=len(weights), replacement=True)
+        # sampler = WeightedRandomSampler(weights=weights, num_samples=len(weights), replacement=True)
 
         train_loader = DataLoader(TensorDataset(emb_train, y_train), batch_size=32,
-                                  sampler=sampler,
-                                  # sampler=None, shuffle=True
+                                #   sampler=sampler,
+                                  sampler=None, shuffle=True
                                   )
         val_loader = DataLoader(TensorDataset(emb_val, y_val), batch_size=32, shuffle=False)
         test_loader = DataLoader(TensorDataset(emb_test, y_test), batch_size=32, shuffle=False)
@@ -172,7 +172,7 @@ def train_model(X_train, y_train, X_val, y_val, X_test, y_test,
         if optimizer_ == "Adam":
             optimizer = optim.Adam(model.parameters(), lr=1e-2, weight_decay=0)
         if optimizer_ == "SGD":
-            optimizer = optim.SGD(model.parameters(), lr=1e-1, momentum=0.9, nesterov=True, weight_decay=1e-3)
+            optimizer = optim.SGD(model.parameters(), lr=5e-3, momentum=0.9, nesterov=True, weight_decay=1e-4)
 
         scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=1e-1, steps_per_epoch=len(train_loader),
                                                 epochs=num_epochs, pct_start=0.3, anneal_strategy='cos')
