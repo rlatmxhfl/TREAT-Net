@@ -24,7 +24,9 @@ run.pid
 *.pth
 **/checkpoints/
 /checkpoint/
+**/checkpoint/
 scripts/checkpoint
+**/[Cc]heckpoint*/
 
 # Virtual environments
 .venv/
