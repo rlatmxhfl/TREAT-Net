@@ -25,7 +25,7 @@
 # seed=$SLURM_ARRAY_TASK_ID
 datetime=$(date +"%Y-%m-%d_%H-%M-%S")
 
-seeds=(0 12 21 7 15)
+seeds=(0 12 21 3 15)
 
 # if [ -z "$seed" ]; then
 #   seed=0 #
@@ -41,21 +41,21 @@ for seed in "${seeds[@]}"; do
   echo "Running with seed ${seed}."
 
   python echoprime.py \
-    --exp_name min_len \
+    --exp_name echoprime \
     --num_workers 0 \
     --batch_size 32 \
     --eval_batch_size 1 \
-    --wdb_group 2262_wTTE_v1.1c_100ep \
+    --wdb_group 2262_wTTE_v1.1c_noEF_150ep_seed3 \
     -lr 1.e-4 \
     -wd 1.e-2 \
     --num_layers 2 \
     --nhead 4 \
     --optim sgd \
     --target tp \
-    --epochs 100 \
+    --epochs 150 \
     --loss_fn ce \
     --seed ${seed} \
-    --exp_dir /raid/home/minht/projects/nature/checkpoint/minht/$datetime \
+    --exp_dir baseline/echoprime/checkpoint/$datetime \
     --mode video \
     $@
 done

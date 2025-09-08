@@ -306,7 +306,7 @@ def load_data(binary=True, seed=0, ref_df=None):
 
     drop_col = ["pt #", "id_1", "mrn_org", "mrn_1", "dob", "id", "AdmitDate", "DischargeDate", "DxCode_1",
                 "event_date_str", "event_date", "pt_height", "pt_weight", "id_2", "DischargeDate_str", "DischargeDate",
-                "Study Date", "Study Type", "cad", "cad_level"] 
+                "Study Date", "Study Type", "cad", "cad_level", "EF_category", "EF"] 
     
     ACS = ACS.drop(drop_col, axis=1)     
 
@@ -352,7 +352,7 @@ def load_data(binary=True, seed=0, ref_df=None):
     X_train, X_val, X_test, y_train, y_val, y_test = preprocessor.preprocess(ACS, drop_missing=False)
     # X_train_df, X_test_df = preprocessor.get_dfs()
 
-    print(preprocessor.get_column_names)
+    # columns = preprocessor.get_column_names
 
     X_train = torch.tensor(X_train, dtype=torch.float32)
     X_val = torch.tensor(X_val, dtype=torch.float32)

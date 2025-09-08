@@ -24,6 +24,7 @@ from .model_training import get_lr_scheduler
 from .classifiers import StudyClassifierVideoOnly, StudyClassifierV1, StudyClassifierV1LateFusion
 from .dataloader import EMB_DIR, LABEL_MAPPING_DICT, NUM_CLASSES, set_loaders
 from .evaluation import *
+from ..utils.visualization import *
 
 # from model.utils.fix_seed import fix_seed
 
@@ -427,5 +428,96 @@ def main(args):
                     freeze=args.freeze,
                     multitask=args.multitask,
                     )
+        
+        # ######### visualization #########
+
+        # # 1) Inspect available module names (helps verify hook targets)
+        # list_module_names(model)
+
+        # # 2) Names to hook — adjust if your model uses different names
+        # VIDEO_FFN = "cross_ffn"         # outputs [B, 1, D] before .squeeze(1)
+        # TAB_HEAD  = "tab_classifier"    # tab MLP head
+        # TASK_HEAD = "task_classifier"   # video/task head from StudyClassifierV1
+
+        # # 3) Where to save things
+        # plots_dir = os.path.join(exp_dir, "plots")
+        # npy_dir   = os.path.join(exp_dir, "npy")
+        # os.makedirs(plots_dir, exist_ok=True)
+        # os.makedirs(npy_dir, exist_ok=True)
+
+        # # 4) Collect features & logits from the *test* split
+        # feats = collect_late_fusion_features(
+        #     model, loaders['test'], device,
+        #     video_ffn_name=VIDEO_FFN,
+        #     tab_head_name=TAB_HEAD,
+        #     task_head_name=TASK_HEAD
+        # )
+
+        # # 5) Save raw arrays so you can reload in a notebook
+        # np.save(os.path.join(npy_dir, "cls_repr.npy"),   feats["cls_repr"])
+        # np.save(os.path.join(npy_dir, "tab_pen.npy"),    feats["tab_pen"])
+        # if feats["task_pen"] is not None:
+        #     np.save(os.path.join(npy_dir, "task_pen.npy"), feats["task_pen"])
+        # np.save(os.path.join(npy_dir, "y.npy"),          feats["y"])
+        # np.save(os.path.join(npy_dir, "tab_logit.npy"),  feats["tab_logit"])
+        # np.save(os.path.join(npy_dir, "task_logit.npy"), feats["task_logit"])
+        # print(f"[Saved NPYs] → {npy_dir}")
+
+        # # 6) Print learned fusion weights
+        # with torch.no_grad():
+        #     w = torch.softmax(model.fusion_logits, dim=0).cpu().numpy()
+        # print(f"[Fusion weights] w_task={w[0]:.3f}, w_tab={w[1]:.3f}")
+
+        # # 7) UMAPs on fused CLS representation (2D + 3D)
+        # run_umap(
+        #     feats["cls_repr"], feats["y"],
+        #     out_png=os.path.join(plots_dir, "umap_cls_repr_2d.png"),
+        #     title="UMAP (2D) — fused CLS representation",
+        #     n_components=2, seed=args.seed
+        # )
+        # run_umap(
+        #     feats["cls_repr"], feats["y"],
+        #     out_png=os.path.join(plots_dir, "umap_cls_repr_3d.png"),
+        #     title="UMAP (3D) — fused CLS representation",
+        #     n_components=3, seed=args.seed
+        # )
+
+        # # 8) UMAPs on tab head penultimate activations (2D + 3D)
+        # run_umap(
+        #     feats["tab_pen"], feats["y"],
+        #     out_png=os.path.join(plots_dir, "umap_tab_penultimate_2d.png"),
+        #     title="UMAP (2D) — tab head penultimate",
+        #     n_components=2, seed=args.seed
+        # )
+        # run_umap(
+        #     feats["tab_pen"], feats["y"],
+        #     out_png=os.path.join(plots_dir, "umap_tab_penultimate_3d.png"),
+        #     title="UMAP (3D) — tab head penultimate",
+        #     n_components=3, seed=args.seed
+        # )
+
+        # # 9) UMAPs on task head penultimate activations (if present)
+        # if feats["task_pen"] is not None:
+        #     run_umap(
+        #         feats["task_pen"], feats["y"],
+        #         out_png=os.path.join(plots_dir, "umap_task_penultimate_2d.png"),
+        #         title="UMAP (2D) — task head penultimate",
+        #         n_components=2, seed=args.seed
+        #     )
+        #     run_umap(
+        #         feats["task_pen"], feats["y"],
+        #         out_png=os.path.join(plots_dir, "umap_task_penultimate_3d.png"),
+        #         title="UMAP (3D) — task head penultimate",
+        #         n_components=3, seed=args.seed
+        #     )
+
+        # # 10) 2D scatter of task vs tab logits (no UMAP)
+        # plot_logit_plane(
+        #     feats["task_logit"], feats["tab_logit"], feats["y"],
+        #     out_png=os.path.join(plots_dir, "logit_plane_task_vs_tab.png"),
+        #     title="Logit plane — task vs tab"
+        # )
+
+        # print(f"[Saved plots] → {plots_dir}")
 
 

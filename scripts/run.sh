@@ -25,8 +25,8 @@
 # seed=$SLURM_ARRAY_TASK_ID
 datetime=$(date +"%Y-%m-%d_%H-%M-%S")
 
-#seeds=(0 12 21 7 15)
-#seeds=(0)
+# seeds=(0 12 21 3 15)
+seeds=(0)
 
 # if [ -z "$seed" ]; then
 #   seed=0 #
@@ -38,29 +38,28 @@ then
 fi
 export CUDA_VISIBLE_DEVICES=${device}
 
-if [ -z ${seed} ]
-then
-  seed=0
-fi
+for seed in "${seeds[@]}"; do
+  echo "Running with seed ${seed}."
 
-nohup python main.py \
-  --exp_name treatnet \
-  --num_workers 0 \
-  --batch_size 32 \
-  --eval_batch_size 1 \
-  --wdb_group 2262_wTTE_v1.1e_200ep_2head \
-  -lr 1.e-3 \
-  -wd 1.e-2 \
-  --num_layers 2 \
-  --nhead 2 \
-  --optim sgd \
-  --target tp \
-  --epochs 200 \
-  --loss_fn ce \
-  --seed ${seed} \
-  --exp_dir scripts/checkpoint/$datetime \
-  --mode late_fusion \
-  --tab_weight /home/diane.kim/nature/baseline/tabpfn_mlp/w_bce/checkpoints/tabweights_BCE_final_epoch_seed21.pt \
-  $@ 
-  
-  # >/dev/null 2>&1 & echo $! > run.pid
+  nohup python main.py \
+    --exp_name treatnet \
+    --num_workers 0 \
+    --batch_size 32 \
+    --eval_batch_size 1 \
+    --wdb_group 2262_wTTE_v1.1e_150ep_seed3_tabweight0 \
+    -lr 1.e-3 \
+    -wd 1.e-2 \
+    --num_layers 2 \
+    --nhead 4 \
+    --optim sgd \
+    --target tp \
+    --epochs 150 \
+    --loss_fn ce \
+    --seed ${seed} \
+    --exp_dir scripts/checkpoint/$datetime \
+    --mode late_fusion \
+    --tab_weight /home/diane.kim/nature/baseline/tabpfn_mlp/w_bce/checkpoints/tabweights_BCE_final_epoch_seed0.pt \
+    $@ 
+done
+    
+    # >/dev/null 2>&1 & echo $! > run.pid

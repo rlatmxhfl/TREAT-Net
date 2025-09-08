@@ -237,7 +237,8 @@ def train_model(X_train, y_train, X_val, y_val, X_test, y_test,
         model_eval(y_true=y_test, y_pred=preds, y_proba=probs, positive_class=1, 
              specificities=(0.2, 0.4, 0.6), average="weighted", verbose=True, set_name="test")
 
-        return model
+        return model, emb_train
+    
 
     model = _train_model(X_train, y_train, X_val, y_val, X_test, y_test, seed=seed)
 

@@ -18,6 +18,7 @@ run.pid
 **/first_run/
 **/first_run/
 **/w_EF
+**/plots/
 
 # checkpoints
 *.ipynb_checkpoints/
