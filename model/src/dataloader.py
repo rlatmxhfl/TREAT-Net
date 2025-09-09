@@ -845,7 +845,9 @@ def set_loaders(args, pretrain_view=False, collate_fn=None, use_view_tokens=Fals
                                   use_view_tokens=use_view_tokens)
 
         sampler, shuffle = None, False
-        if split == 'train' and not args.non_balanced_batch and not pretrain_view:
+        if split in ['val', 'test']:
+            shuffle = False
+        elif split == 'train' and not args.non_balanced_batch and not pretrain_view:
             targets = torch.tensor([_[2] for _ in dset[split]])  # assuming (x, y, idx)
             class_counts = torch.bincount(targets)
             class_weights = 1.0 / class_counts.float()

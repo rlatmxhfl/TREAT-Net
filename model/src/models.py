@@ -297,6 +297,7 @@ def evaluate(model, dataloader, criterion, device, epoch, run=DummyRun(), set_na
             'mrn_1': [_['mrn'] for _ in dataloader.dataset.grouped_data],
             'pred': preds.squeeze(),
             'prob' : probs.squeeze(),
+            'targets' : targets.squeeze(),
         }
         df = pd.DataFrame(df)
         assert exp_dir is not None
