@@ -212,7 +212,8 @@ def train_model(model, train_loader, val_loader, test_loader, label_mapping, dev
             model, val_loader, criterion, device, epoch, run=run, set_name='val')
 
         _, test_bal_acc, test_sens_data = evaluate(
-            model, test_loader, criterion, device, epoch, run=run, set_name='test')
+            model, test_loader, criterion, device, epoch, run=run, set_name='test',
+            save_probs=epoch==num_epochs-1, exp_dir=save_path)
 
         for target in (0.2, 0.4, 0.6):
             sens_v, spec_v, thr_v = val_sens_data[target]
@@ -256,7 +257,8 @@ def train_model(model, train_loader, val_loader, test_loader, label_mapping, dev
             print(f"    Max Sensitivity: {sens[max_idx]*100:.2f}% (Epoch {epochs[max_idx]})")
 
 @torch.no_grad()
-def evaluate(model, dataloader, criterion, device, epoch, run=DummyRun(), set_name="val"):
+def evaluate(model, dataloader, criterion, device, epoch, run=DummyRun(), set_name="val",
+             save_probs=False, exp_dir=None):
 
     model.eval()
     running_loss, total = 0.0, 0
@@ -289,6 +291,16 @@ def evaluate(model, dataloader, criterion, device, epoch, run=DummyRun(), set_na
     preds = torch.cat(preds_list).numpy()
     targets = torch.cat(targets_list).numpy()
     probs = torch.cat(probs_list).numpy()
+
+    if save_probs:
+        df = {
+            'mrn_1': [_['mrn'] for _ in dataloader.dataset.grouped_data],
+            'pred': preds.squeeze(),
+            'prob' : probs.squeeze(),
+        }
+        df = pd.DataFrame(df)
+        assert exp_dir is not None
+        df.to_csv(f'{exp_dir}/{set_name}_probs.csv', index=False)
 
     result = model_eval(
         y_true=targets,
