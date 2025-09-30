@@ -1,10 +1,9 @@
 # Project Title
 
-A short description of your project and what it does.
+This repository contains the implementation of TREAT-Net, a framework that integrates echocardiography video embeddings with clinical tabular data to predict treatment strategies for acute coronary syndrome (ACS) patients. The model combines cross-attention fusion and late fusion to capture complementary information, improving robustness and labeled data efficiency.
 
 ## 📖 Table of Contents
 - [About](#about)
-- [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
@@ -17,17 +16,13 @@ A short description of your project and what it does.
 Describe the purpose of the project, the problem it solves, and why it’s useful.  
 Optionally, add a project logo or demo screenshot.
 
-## ✨ Features
-- Feature 1
-- Feature 2
-- Feature 3
 
 ## ⚙️ Installation
 Clone the repo and install dependencies:
 
 ```bash
-git clone https://github.com/OWNER/REPO.git
-cd REPO
+git clone https://github.com/rlatmxhfl/nature.git
+cd nature
 pip install -r requirements.txt
 ```
 
@@ -36,15 +31,6 @@ Basic usage example:
 
 ```bash
 python main.py --config config.yaml
-```
-
-Or as a library:
-
-```python
-from mypackage import MyClass
-
-model = MyClass()
-model.run()
 ```
 
 ## 🔧 Configuration
