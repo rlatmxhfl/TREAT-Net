@@ -54,6 +54,4 @@ Provide code snippets, images, or links to notebooks showing how the project wor
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 🙏 Acknowledgments
-We thank our supervisors, collaborators, and clinical partners for their invaluable support and feedback. This work was developed as part of our MICCAI 2025 workshop paper, TREAT-Net: Tabular-Referenced Echo Analysis for Treatment prediction in ACS patients.
-
-- Inspired by XYZ project
+We thank our supervisors, collaborators, and clinical partners for their invaluable support and feedback. This work was developed as part of our MICCAI 2025 workshop paper, "TREAT-Net: Tabular-Referenced Echo Analysis for Treatment prediction in ACS patients".
