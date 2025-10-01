@@ -27,11 +27,81 @@ pip install -r requirements.txt
 ```
 
 ## 🚀 Usage
-Basic usage example:
+### 1) Setup
+\`\`\`bash
+# Create env (Python ≥3.9)
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt   # (or) pip install torch torchvision torchaudio scikit-learn pandas numpy tqdm wandb matplotlib
+\`\`\`
+- Weights & Biases is optional; add `-nw/--no_wandb` to disable logging.
 
-```bash
-python main.py --config config.yaml
-```
+---
+
+### 2) Data & Inputs
+TREAT-Net trains on **EchoPrime video embeddings** plus **clinical tabular features**.  
+You have two ways to feed data:
+
+**A. Precomputed embeddings (recommended)**
+- Place the following files under `EMB_DIR` (see constant in `model/src/dataloader.py`):
+  - `echoprime_train_grouped_by_mrn.pt`
+  - `echoprime_val_grouped_by_mrn.pt`
+  - `echoprime_test_grouped_by_mrn.pt`
+- Update `EMB_DIR` in `model/src/dataloader.py` to your path.
+
+**B. Raw-study CSV (cine/study mode)**
+- CSV must include columns: `mrn_1`, `processed_file_address`, `view`, and `MANAG`  
+  (`MANAG ∈ {MANAG, INTERVENTION}` for treatment labels; views use `AP2`, `AP4`, `PLAX`).
+- See `model/src/dataloader.py:get_all_files_and_ground_truths` for the exact parsing.
+
+---
+
+### 3) Quick Start
+Run from repo root:
+
+\`\`\`bash
+# Multimodal (video + tabular) with late fusion, treatment prediction (tp)
+python main.py \
+  --exp_dir runs/exp_tp_late \
+  --target tp \
+  --mode late_fusion \
+  --epochs 150 \
+  --batch_size 8 \
+  --eval_batch_size 32 \
+  --lr 1e-3 \
+  --num_layers 2 \
+  --nhead 4 \
+  -nw  # disable wandb (optional)
+\`\`\`
+
+**Other common modes**
+\`\`\`bash
+# Video-only
+python main.py --target tp --mode video -nw --exp_dir runs/exp_video
+
+# Joint fusion (cross-attn + tabular)
+python main.py --target tp --mode video+tab -nw --exp_dir runs/exp_vtab
+\`\`\`
+
+---
+
+### 4) Useful Flags (subset)
+- `--target {cad,tp}`: prediction task (default `cad`; repo mainly uses `tp`).
+- `--mode {video,video+tab,late_fusion}`: fusion strategy.
+- `--epochs`, `--batch_size`, `--eval_batch_size`, `--lr`, `--weight_decay`.
+- `--num_layers`, `--nhead`: Transformer backbone size.
+- `--freeze`: freeze backbone; `--unfreeze_encoder` to undo.
+- `--save_embeddings`: dump learned embeddings.
+- `--tab_weight /path/to/tab_model.pt`: load pretrained tabular weights.
+- `--seed`, `--no_wandb` (a.k.a. `-nw`), `--debug`.
+
+---
+
+### 5) Outputs
+- Checkpoints, metrics, and CSVs (predictions/probabilities) are saved under `--exp_dir`.
+- Per-split predictions are written to `{exp_dir}/{split}_preds.csv` and `{split}_probs.csv`.
+
+---
+
 
 ## 🔧 Configuration
 Explain environment variables, configuration files, or arguments:
