@@ -175,7 +175,7 @@ TREAT-Net/
 
 ## Acknowledgements
 
-We thank our collaborators and clinical partners for their invaluable support and feedback. This work was developed as part of our MICCAI 2025 workshop paper, *TREAT‑Net: Tabular‑Referenced Echo Analysis for Treatment Prediction in ACS patients*.
+We thank our supervisors, collaborators, and clinical partners for their invaluable support and feedback. This work was developed as part of our MICCAI 2025 workshop paper, *TREAT‑Net: Tabular‑Referenced Echo Analysis for Treatment Prediction in ACS patients*.
 
 ---
 
