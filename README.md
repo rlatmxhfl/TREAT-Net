@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./logos/logos.png" alt="Project Logo" width="240" />
+  <img src="./logos/logos.png" alt="Project Logo" width="720" />
 </p>
 
 # TREAT‑Net: Tabular‑Referenced Echo Analysis for Treatment Prediction in ACS
