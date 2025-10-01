@@ -55,7 +55,7 @@ Place the following files under `EMB_DIR` (see the constant/path in `model/src/d
 
 Update `EMB_DIR` in `model/src/dataloader.py` to point to your local path.
 
-### B) Raw-study CSV (cine/study mode)
+### B) Raw-study CSV
 
 The **tabular CSV** must include the fields actually consumed by the preprocessing pipeline in `model/utils/data_preprocessor.py`.
 
