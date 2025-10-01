@@ -28,11 +28,11 @@ pip install -r requirements.txt
 
 ## 🚀 Usage
 ### 1) Setup
-\`\`\`bash
+```bash
 # Create env (Python ≥3.9)
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt   # (or) pip install torch torchvision torchaudio scikit-learn pandas numpy tqdm wandb matplotlib
-\`\`\`
+```
 - Weights & Biases is optional; add `-nw/--no_wandb` to disable logging.
 
 ---
@@ -58,7 +58,7 @@ You have two ways to feed data:
 ### 3) Quick Start
 Run from repo root:
 
-\`\`\`bash
+```bash
 # Multimodal (video + tabular) with late fusion, treatment prediction (tp)
 python main.py \
   --exp_dir runs/exp_tp_late \
@@ -71,16 +71,16 @@ python main.py \
   --num_layers 2 \
   --nhead 4 \
   -nw  # disable wandb (optional)
-\`\`\`
+```
 
 **Other common modes**
-\`\`\`bash
+```bash
 # Video-only
 python main.py --target tp --mode video -nw --exp_dir runs/exp_video
 
 # Joint fusion (cross-attn + tabular)
 python main.py --target tp --mode video+tab -nw --exp_dir runs/exp_vtab
-\`\`\`
+```
 
 ---
 
