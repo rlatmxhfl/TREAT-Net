@@ -154,6 +154,14 @@ See `model/utils/data_preprocessor.py` for the authoritative lists and label map
 
 ## Quick Start
 
+You can reproduce the full TREAT‑Net training runs using the provided Slurm script:
+
+```bash
+bash scripts/run.sh
+```
+
+This script sets up the experiment directories, hyperparameters, and modes consistent with the paper defaults.
+
 Run from the repository root:
 
 ```bash
