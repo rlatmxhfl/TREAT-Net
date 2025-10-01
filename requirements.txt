@@ -1,0 +1,19 @@
+# Core ML
+torch>=1.12
+torchvision>=0.13
+torchaudio>=0.12
+
+# Data handling
+numpy>=1.21
+pandas>=1.3
+scikit-learn>=1.0
+tqdm>=4.64
+
+# Visualization
+matplotlib>=3.5
+
+# Experiment tracking (optional)
+wandb>=0.12
+
+# Utilities
+PyYAML>=6.0
