@@ -163,7 +163,7 @@ If you find this work useful, please cite our paper (update authors/venue/year a
 
 ## License
 
-Specify your license here (e.g., MIT, Apache‑2.0). If unsure, add a `LICENSE` file and update this section accordingly.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
 ---
 
