@@ -33,7 +33,7 @@ seeds=(0 12 21 3 15)
 
 if [ -z ${device} ]
 then
-  device=3
+  device=1
 fi
 export CUDA_VISIBLE_DEVICES=${device}
 
@@ -45,7 +45,7 @@ for seed in "${seeds[@]}"; do
     --num_workers 0 \
     --batch_size 32 \
     --eval_batch_size 1 \
-    --wdb_group 2262_wTTE_v1.1c_noEF_150ep_seed3 \
+    --wdb_group 2262_wTTE_v1_noLeakFeats \
     -lr 1.e-4 \
     -wd 1.e-2 \
     --num_layers 2 \

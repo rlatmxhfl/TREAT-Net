@@ -806,7 +806,7 @@ def set_loaders(args, pretrain_view=False, collate_fn=None, use_view_tokens=Fals
                 dropped_class=None, *_args, **_kwargs):
     dset, loaders = dict(), dict()
     # file_suffix = ''
-    file_suffix = '_grouped_by_mrn'
+    file_suffix = '_grouped_by_mrn_no_leakage_feats'
 
     if collate_fn is None:
         if use_view_tokens:
