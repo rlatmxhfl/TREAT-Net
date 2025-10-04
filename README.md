@@ -2,7 +2,8 @@
   <img src="./logos/logos.png" alt="Project Logo" width="720" />
 </p>
 
-# TREAT‑Net: Tabular‑Referenced Echo Analysis for Treatment Prediction in ACS
+# TREAT-Net: Tabular-Referenced Echo Analysis for Treatment Prediction in ACS [![ASMUS25](https://img.shields.io/badge/ASMUS25-Springer-blue)](https://link.springer.com/chapter/10.1007/978-3-032-06329-8_23) [![arXiv](https://img.shields.io/badge/arXiv-2509.23999-b31b1b.svg)](https://www.arxiv.org/abs/2509.23999)
+
 
 TREAT‑Net is a multimodal deep learning framework that integrates **echocardiography video embeddings** with **clinical tabular data** to predict treatment strategies for **acute coronary syndrome (ACS)** patients. The model supports both **cross‑attention fusion** and **late fusion**, capturing complementary information to improve robustness and interpretability.
 
